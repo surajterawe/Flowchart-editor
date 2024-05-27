@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default () => {
+const SidebarPanal = ({nodeValue}) => {
   const onDragStart = (event, nodeType) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
@@ -8,24 +8,27 @@ export default () => {
 
   return (
     <aside>
-      <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'input')} draggable>
-        Input Node
+
+      <div className="dndnode" onDragStart={(event) => onDragStart(event, 'customContainer')} draggable>
+        Custom Container
+      </div> 
+      <div className="dndnode" onDragStart={(event) => onDragStart(event, 'storageaccountnode')} draggable>
+            Storage Account
       </div>
-      <div className="dndnode" onDragStart={(event) => onDragStart(event, 'default')} draggable>
-        Default Node
-      </div>
-      <div className="dndnode" onDragStart={(event) => onDragStart(event, 'resizer')} draggable>
-        Resizable
-      </div>
-      <div className="dndnode" onDragStart={(event) => onDragStart(event, 'textinput')} draggable>
-            Text Input
-      </div>
-      <div className="dndnode" onDragStart={(event) => onDragStart(event, 'circle')} draggable>
-        Circle
-      </div>
-      <div className="dndnode output" onDragStart={(event) => onDragStart(event, 'output')} draggable>
+      
+      {
+        nodeValue.map(items => {
+          return <div className="dndnode" onDragStart={(event) => onDragStart(event, `cstmform-${items.key}`)} draggable>
+            {items.name}
+          </div>
+        })
+      }
+      {/* <div className="dndnode output" onDragStart={(event) => onDragStart(event, 'output')} draggable>
         Output Node
-      </div>
+      </div> */}
     </aside>
+
   );
 };
+
+export default SidebarPanal

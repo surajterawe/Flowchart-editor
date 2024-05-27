@@ -8,6 +8,8 @@
   
   .overview .react-flow__node {
     font-size: 12px;
+    height: fit-content;
+    width: fit-content;
   }
   
   .edgebutton {
@@ -69,8 +71,10 @@
   
   .react-flow__node-resizer .react-flow__handle,
   .react-flow__node-circle .react-flow__handle,
-  .react-flow__node-textinput .react-flow__handle {
-    background: #bbb;
+  .react-flow__node-customContainer .react-flow__handle,
+   div[class*="react-flow__node-cstmform"] .react-flow__handle,
+  .react-flow__node-networkingsStorageAccount .react-flow__handle {
+    background: #fff;
     border-radius: 0;
     width: 8px;
     height: 4px;
@@ -81,7 +85,13 @@
   
   .react-flow__node-resizer .react-flow__handle-bottom,
   .react-flow__node-circle .react-flow__handle-bottom,
-  .react-flow__node-textinput .react-flow__handle-bottom {
+  .react-flow__node-customContainer .react-flow__handle-bottom,
+   div[class*="react-flow__node-cstmform"] .react-flow__handle-bottom,
+  .react-flow__node-networkingsStorageAccount .react-flow__handle-bottom {
+    height: 8px;
+    width: 8px;
+    border : 2px solid black;
+    border-radius: 50%;
     bottom: -5px;
     transform: none;
     border-radius: 0 0 2px 2px;
@@ -89,19 +99,40 @@
   
   .react-flow__node-resizer .react-flow__handle-top,
   .react-flow__node-circle .react-flow__handle-top,
-  .react-flow__node-textinput .react-flow__handle-top {
+  .react-flow__node-customContainer .react-flow__handle-top,
+   div[class*="react-flow__node-cstmform"] .react-flow__handle-top,
+  .react-flow__node-networkingsStorageAccount .react-flow__handle-top {
+    height: 8px;
+    width: 8px;
+    border : 2px solid black;
+    border-radius: 50%;
     top: -5px;
     transform: none;
     border-radius: 2px 2px 0 0;
   }
+
+  .react-flow__node-resizer .react-flow__handle-right,
+  .react-flow__node-circle .react-flow__handle-right,
+   div[class*="react-flow__node-cstmform"] .react-flow__handle-right,
+  .react-flow__node-customContainer .react-flow__handle-right,
+  .react-flow__node-networkingsStorageAccount .react-flow__handle-right {
+    height: 8px;
+    width: 8px;
+    border : 2px solid black;
+    border-radius: 50%;
+    right: -5px;
+  }
   
   .react-flow__node-resizer .react-flow__handle-left,
   .react-flow__node-circle .react-flow__handle-left,
-  .react-flow__node-textinput .react-flow__handle-left {
+   div[class*="react-flow__node-cstmform"] .react-flow__handle-left,
+  .react-flow__node-customContainer .react-flow__handle-left,
+  .react-flow__node-networkingsStorageAccount .react-flow__handle-left {
     height: 8px;
-    width: 4px;
+    width: 8px;
+    border : 2px solid black;
+    border-radius: 50%;
     left: -5px;
-    border-radius: 2px 0 0 2px;
   }
   
   .react-flow__node-annotation {
@@ -118,7 +149,9 @@
   }
   
   .react-flow__node-circle,
-  .react-flow__node-textinput {
+   div[class*="react-flow__node-cstmform"],
+  .react-flow__node-customContainer,
+  .react-flow__node-networkingsStorageAccount {
     color: #fff;
     border-radius: 100%;
     display: flex;
@@ -131,16 +164,19 @@
   }
   
   .react-flow__node-circle .wrapper,
-  .react-flow__node-textinput .wrapper {
+   div[class*="react-flow__node-cstmform"] .wrapper,
+  .react-flow__node-customContainer .wrapper,
+  .react-flow__node-networkingsStorageAccount .wrapper {
     overflow: hidden;
     display: flex;
-    padding: 2px;
+    /* padding: 2px; */
     position: relative;
     border-radius: 100%;
     flex-grow: 1;
   }
   
-  .react-flow__node-circle .inner {
+  .react-flow__node-circle 
+   {
     background: rgba(255, 255, 255, 0.5);
     border-radius: 100%;
     display: flex;
@@ -151,33 +187,43 @@
     text-align: center;
   }
   
-  .react-flow__node-textinput {
+  .react-flow__node-networkingsStorageAccount,
+   div[class*="react-flow__node-cstmform"],
+  .react-flow__node-customContainer
+  {
     border-radius: 5px;
     width: 150px;
     text-align: left;
     height: auto;
   }
   
-  .react-flow__node-textinput .wrapper {
+  
+   div[class*="react-flow__node-cstmform"] .wrapper,
+  .react-flow__node-customContainer .wrapper,
+  .react-flow__node-networkingsStorageAccount .wrapper {
     border-radius: 5px;
     height: 100%;
   }
   
-  .react-flow__node-textinput .inner {
+  .react-flow__node-networkingsStorageAccount .inner,
+  .react-flow__node-customContainer .inner,    div[class*="react-flow__node-cstmform"] .inner {
     background: rgba(255, 255, 255, 0.5);
     flex-grow: 1;
     position: relative;
-    padding: 10px;
+    padding: 20px;
     border-radius: 4px;
     height: 100%;
   }
   
-  .react-flow__node-textinput input {
+  .react-flow__node-storageaccountnode input,
+  .react-flow__node-customContainer .input,
+   div[class*="react-flow__node-cstmform"] input
+  {
     width: 100%;
-    font-size: 12px;
+    /* margin-left: auto; */
+    /* font-size: 8px; */
+    outline: none;
     border: none;
-    border-radius: 2px;
-    margin-bottom: 10px;
     margin-top: 2px;
     padding: 2px 4px;
     color: #555;
@@ -188,13 +234,7 @@
     position: absolute;
     padding-bottom: calc(100% * 1.41421356237);
     width: calc(100% * 1.41421356237);
-    background: conic-gradient(
-      from -160deg at 50% 50%,
-      #e92a67 0deg,
-      #a853ba 120deg,
-      #2a8af6 240deg,
-      #e92a67 360deg
-    );
+    background: white;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -208,7 +248,10 @@
   .react-flow__minimap .resizer,
   .react-flow__minimap .tools,
   .react-flow__minimap .circle,
-  .react-flow__minimap .textinput {
+  .react-flow__minimap .networkingsStorageAccount,
+  .react-flow__minimap .customContainer,
+  .react-flow__minimap div[class^="cstmform"]
+  {
     fill: rgb(208, 192, 247);
   }
   
@@ -225,3 +268,25 @@
     display: none;
   }
   
+  .formlabel {
+    color: black;
+    font-size: 8px;
+  }
+  .inputWrapper {
+    display: flex;
+    /* margin-top: 10px !important; */
+    flex-direction: column;
+    margin-top: 2px;
+    gap:10px;
+    min-width: 300px;
+  }
+
+  .drop-custom {
+    position: relative;
+  }
+
+  .inputFiles {
+    border-width: 1px !important;
+    border: 0.5px solid black !important
+    
+  }
