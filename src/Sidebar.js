@@ -9,12 +9,9 @@ const SidebarPanal = ({nodeValue}) => {
   return (
     <aside>
 
-      <div className="dndnode" onDragStart={(event) => onDragStart(event, 'customContainer')} draggable>
+      {/* <div className="dndnode" onDragStart={(event) => onDragStart(event, 'customContainer')} draggable>
         Custom Container
-      </div> 
-      <div className="dndnode" onDragStart={(event) => onDragStart(event, 'storageaccountnode')} draggable>
-            Storage Account
-      </div>
+      </div>  */}
       
       {
         nodeValue.map(items => {

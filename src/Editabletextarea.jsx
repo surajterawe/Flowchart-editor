@@ -1,3 +1,4 @@
+// export default EditableTextarea;
 import React, { useState, memo, useEffect } from "react";
 import NodeFormValue from "./NodeFormValue"; // Adjust the import according to your project structure
 
@@ -5,14 +6,16 @@ function EditableTextarea({
   textareavalue,
   output,
   nodeTypes,
+  nodes,
   setNodes,
   setNodesValue,
   setNodeType,
 }) {
-  const [textareaContent, setTextareaContent] = useState(textareavalue);
-  const [outputState, setOutputState] = useState(
-    JSON.stringify(output, null, 2)
-  );
+  const [outputState, setOutputState] = useState("");
+
+  useEffect(()=> {
+    setOutputState(JSON.stringify(output, null, 2))
+  },[])
 
   const isJSON = (str) => {
     try {
@@ -23,89 +26,41 @@ function EditableTextarea({
     }
   };
 
-  useEffect(() => {
-    const valuedata = `{
-        "dndnode_0": {
-            "id": "dndnode_0",
-            "type": "cstmform-storage",
-            "position": {
-                "x": 697,
-                "y": 183
-            },
-            "data": {
-                "label": "cstmform-storage node",
-                "formData": {
-                    "name": "Storage 1",
-                    "key": "storage",
-                    "description": "To pretty print JSON with React, you can use the JSON.stringify() method and pass JSON object as the first argument, null as the second argument, and the 2 as the third argument. This will return a string representation of the JSON object that is nicely formatted and easy to read.",
-                    "form": [
-                        {
-                            "name": "Field 1",
-                            "key": "field1",
-                            "type": "text",
-                            "options": [
-                                {
-                                    "description": "",
-                                    "key": "",
-                                    "name": ""
-                                }
-                            ]
-                        },
-                        {
-                            "name": "Field 2",
-                            "key": "field2",
-                            "type": "radio",
-                            "options": [
-                                {
-                                    "description": "To pretty print JSON with React, you can use the JSON.stringify() method and pass JSON object as the first argument, null as the second argument, and the 2 as the third argument. This will return a string representation of the JSON object that is nicely formatted and easy to read.",
-                                    "key": "option1",
-                                    "name": "Option 1"
-                                },
-                                {
-                                    "description": "To pretty print JSON with React, you can use the JSON.stringify() method and pass JSON object as the first argument, null as the second argument, and the 2 as the third argument. This will return a string representation of the JSON object that is nicely formatted and easy to read.",
-                                    "key": "option2",
-                                    "name": "Option 2"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            },
-            "width": 400,
-            "height": 232
-        }
-      }`;
-    if (isJSON(valuedata)) {
-      const value = JSON.parse(valuedata);
-      Object.keys(value).map((items) => {
-        let domcode = { ...value[items] };
-        domcode["data"] = { label: domcode["data"].label };
 
-        setNodes((nds) => nds.concat(domcode));
-      });
-    }
-  }, []);
-
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setTextareaContent(value);
-
+  const handleChange = (value) => {
+    setOutputState(value);
     if (value && isJSON(value)) {
-      const EditNodes = JSON.parse(value);
-      setNodesValue(EditNodes);
+      const obj = JSON.parse(value);
+      const formDataList = [
+        ...Object.values(obj).map((items) => items?.data?.formData),
+      ];
+      setNodesValue([...formDataList]);
       const nodeValueTemperory = { ...nodeTypes };
-      EditNodes.forEach((itemValue) => {
+      formDataList.forEach((itemValue) => {
         nodeValueTemperory[`cstmform-${itemValue.key}`] = memo(() => {
           return <NodeFormValue component={itemValue} />;
         });
       });
+      
       setNodeType({ ...nodeValueTemperory });
+      // const currentNodes = [...nodes]
+    
+      setNodes([
+        ...Object.values(obj).map((items) => {
+          return {
+            ...items,
+            data: {
+              label: items?.data?.label,
+            },
+          };
+        }),
+      ]);
     }
   };
 
   return (
     <>
-      <textarea
+      {/* <textarea
         style={{
           margin: "20px",
           padding: "20px",
@@ -116,7 +71,7 @@ function EditableTextarea({
         }}
         value={textareaContent}
         onChange={handleInputChange}
-      />
+      /> */}
       <textarea
         style={{
           margin: "20px",
@@ -124,10 +79,10 @@ function EditableTextarea({
           border: "1px solid #00000020",
           outline: "none",
           width: "86%",
-          height: "200px",
+          height: "400px",
         }}
         value={outputState}
-        onChange={(e) => setOutputState(e.target.value)}
+        onChange={(e) => handleChange(e.target.value)}
       />
     </>
   );

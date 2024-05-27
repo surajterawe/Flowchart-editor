@@ -1,7 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 const EditableText = ({handleChange, value, ...rest}) => {
-  const [toggleEdit, setToggleEdit] = useState(false)
   return (
     <div>  
     <input 

@@ -71,7 +71,7 @@
   
   .react-flow__node-resizer .react-flow__handle,
   .react-flow__node-circle .react-flow__handle,
-  .react-flow__node-customContainer .react-flow__handle,
+  .react-flow__node-storageaccountnode .react-flow__handle,
    div[class*="react-flow__node-cstmform"] .react-flow__handle,
   .react-flow__node-networkingsStorageAccount .react-flow__handle {
     background: #fff;
@@ -85,7 +85,7 @@
   
   .react-flow__node-resizer .react-flow__handle-bottom,
   .react-flow__node-circle .react-flow__handle-bottom,
-  .react-flow__node-customContainer .react-flow__handle-bottom,
+  .react-flow__node-storageaccountnode .react-flow__handle-bottom,
    div[class*="react-flow__node-cstmform"] .react-flow__handle-bottom,
   .react-flow__node-networkingsStorageAccount .react-flow__handle-bottom {
     height: 8px;
@@ -99,7 +99,7 @@
   
   .react-flow__node-resizer .react-flow__handle-top,
   .react-flow__node-circle .react-flow__handle-top,
-  .react-flow__node-customContainer .react-flow__handle-top,
+  .react-flow__node-storageaccountnode .react-flow__handle-top,
    div[class*="react-flow__node-cstmform"] .react-flow__handle-top,
   .react-flow__node-networkingsStorageAccount .react-flow__handle-top {
     height: 8px;
@@ -114,7 +114,7 @@
   .react-flow__node-resizer .react-flow__handle-right,
   .react-flow__node-circle .react-flow__handle-right,
    div[class*="react-flow__node-cstmform"] .react-flow__handle-right,
-  .react-flow__node-customContainer .react-flow__handle-right,
+  .react-flow__node-storageaccountnode .react-flow__handle-right,
   .react-flow__node-networkingsStorageAccount .react-flow__handle-right {
     height: 8px;
     width: 8px;
@@ -126,7 +126,7 @@
   .react-flow__node-resizer .react-flow__handle-left,
   .react-flow__node-circle .react-flow__handle-left,
    div[class*="react-flow__node-cstmform"] .react-flow__handle-left,
-  .react-flow__node-customContainer .react-flow__handle-left,
+  .react-flow__node-storageaccountnode .react-flow__handle-left,
   .react-flow__node-networkingsStorageAccount .react-flow__handle-left {
     height: 8px;
     width: 8px;
@@ -150,7 +150,7 @@
   
   .react-flow__node-circle,
    div[class*="react-flow__node-cstmform"],
-  .react-flow__node-customContainer,
+  .react-flow__node-storageaccountnode,
   .react-flow__node-networkingsStorageAccount {
     color: #fff;
     border-radius: 100%;
@@ -165,7 +165,7 @@
   
   .react-flow__node-circle .wrapper,
    div[class*="react-flow__node-cstmform"] .wrapper,
-  .react-flow__node-customContainer .wrapper,
+  .react-flow__node-storageaccountnode .wrapper,
   .react-flow__node-networkingsStorageAccount .wrapper {
     overflow: hidden;
     display: flex;
@@ -189,7 +189,7 @@
   
   .react-flow__node-networkingsStorageAccount,
    div[class*="react-flow__node-cstmform"],
-  .react-flow__node-customContainer
+  .react-flow__node-storageaccountnode
   {
     border-radius: 5px;
     width: 150px;
@@ -199,14 +199,15 @@
   
   
    div[class*="react-flow__node-cstmform"] .wrapper,
-  .react-flow__node-customContainer .wrapper,
+  .react-flow__node-storageaccountnode .wrapper,
   .react-flow__node-networkingsStorageAccount .wrapper {
     border-radius: 5px;
     height: 100%;
   }
   
   .react-flow__node-networkingsStorageAccount .inner,
-  .react-flow__node-customContainer .inner,    div[class*="react-flow__node-cstmform"] .inner {
+  .react-flow__node-storageaccountnode .inner,    
+  div[class*="react-flow__node-cstmform"] .inner {
     background: rgba(255, 255, 255, 0.5);
     flex-grow: 1;
     position: relative;
@@ -216,7 +217,7 @@
   }
   
   .react-flow__node-storageaccountnode input,
-  .react-flow__node-customContainer .input,
+  .react-flow__node-storageaccountnode .input,
    div[class*="react-flow__node-cstmform"] input
   {
     width: 100%;
@@ -249,7 +250,7 @@
   .react-flow__minimap .tools,
   .react-flow__minimap .circle,
   .react-flow__minimap .networkingsStorageAccount,
-  .react-flow__minimap .customContainer,
+  .react-flow__minimap .storageaccountnode,
   .react-flow__minimap div[class^="cstmform"]
   {
     fill: rgb(208, 192, 247);

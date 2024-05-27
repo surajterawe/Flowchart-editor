@@ -10,7 +10,7 @@ import ReactFlow, {
   useEdgesState,
 } from "reactflow";
 import Sidebar from "./Sidebar";
-
+import { v4 as uuidv4 } from "uuid";
 import {
   nodes as initialNodes,
   edges as initialEdges,
@@ -20,9 +20,7 @@ import ButtonEdge from "./ButtonEdge";
 import "reactflow/dist/style.css";
 import "./overview.css";
 import NetworkingStorageAccount from "./NetworkingStorageAccount";
-import {
-  PrimaryButton,
-} from "office-ui-fabric-react";
+import { PrimaryButton } from "office-ui-fabric-react";
 import { Drawer } from "@mui/material";
 import AddComponentForm from "./AddComponentForm";
 import { DefaultButton } from "@fluentui/react";
@@ -51,64 +49,145 @@ const defaultFields = {
 
 const nodeClassName = (node) => node.type;
 
+const initialNodesValues = [
+  {
+    name: "Storage Account",
+    key: "storageaccountnode",
+    form: [{
+      key: "storageAccountName",
+      name: "Storage Account Name",
+      type: "text",
+      options: [
+        {
+          description: "",
+          key: "",
+          name: "",
+        },
+      ],
+    }, {
+      key: "region",
+      name: "Region",
+      type: "dropdown",
+      options: [
+        {
+          description: "",
+          key: "lrs",
+          name: "Locally-redundent storage (LRS)",
+        },
+        {
+          description: "",
+          key: "zrs",
+          name: "Zone-redundent storage (ZRS)",
+        },
+      ],
+    },{
+      key: "performance",
+      name: "Performance",
+      type: "radio",
+      options: [
+        {
+          description: "Recommended for most scenarios (general-purpose v2 account)",
+          key: "standard",
+          name: "Standard",
+        },
+        {
+          description: "Recommended for scenarios that require low latency.",
+          key: "premium",
+          name: "Premium",
+        },
+      ],
+    }, {
+      key: "premiumaccounttype",
+      name: "Premium account type",
+      type: "dropdown",
+      options: [
+        {
+          description: "",
+          key: "blackbloba",
+          name: "Black blobs",
+        },
+        {
+          description: "",
+          key: "fileshares",
+          name: "File shares",
+        },
+        {
+          description: "",
+          key: "pageblobs",
+          name: "Page blobs",
+        },
+      ],
+    },  {
+      key: "redundency",
+      name: "Redundancy",
+      type: "dropdown",
+      options: [
+        {
+          description: "",
+          key: "lrs",
+          name: "Locally-redundent storage (LRS)",
+        },
+        {
+          description: "",
+          key: "zrs",
+          name: "Zone-redundent storage (ZRS)",
+        },
+      ],
+    }],
+  },
+];
 
-let id = 0;
-const getId = () => `dndnode_${id++}`;
+const getId = (id) => `dndnode_${id}`;
 
 const App = () => {
   const reactFlowWrapper = useRef(null);
   const [nodeTypes, setNodeType] = useState({
-    storageaccountnode: TextNode,
+    // "cstmform-storageaccountnode": TextNode,
     networkingsStorageAccount: NetworkingStorageAccount,
   });
-  const [textareavalue, setTextAreaValue] = useState("")
+  const [textareavalue, setTextAreaValue] = useState("");
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
-  const [output, setOutput] = useState({
-
-  });
+  const [output, setOutput] = useState({});
   const [fields, setFields] = useState(defaultFields);
   const [open, setOpen] = React.useState(false);
   const [outputdrawer, setoutputdrawer] = useState(false);
   const [nodeValue, setNodesValue] = useState([]);
 
 
+  useEffect(() => {
+    if (nodes && nodeValue.length > 0) {
+      const outputData = {};
+      nodes.forEach((itemsValues, index) => {
+        const formData = nodeValue.find((items) =>
+          items.key.includes("cstmform")
+            ? itemsValues.type === items.key
+            : itemsValues.type === `cstmform-${items.key}`
+        );
 
-  useEffect(()=>{
-    if(nodes && nodeValue.length > 0) {
-      const outputData = {...output}
-      nodes.forEach(itemsValues => {
-       const formData = nodeValue.find(items => itemsValues.type === `cstmform-${items.key}`)
-       outputData[itemsValues.id] = {...itemsValues, data : {...itemsValues.data, formData}} 
-      })
-      setOutput(outputData)
+        outputData[itemsValues.id] = {
+          ...itemsValues,
+          data: { ...itemsValues.data, formData },
+        };
+      });
+      setOutput(outputData);
     }
 
     // nodes,nodeValue)
-  },[nodes])
+  }, [nodes]);
 
-
-  const onRenderOption = (option) => {
-    return (
-      <div
-        style={{
-          display: "flex",
-        }}
-      >
-        <div>
-          <span
-            style={{
-              fontWeight: option.description ? 600 : 500,
-            }}
-          >
-            {option.text}
-          </span>{" "}
-          {option.description ? `: ${option.description}` : ""}
-        </div>
-      </div>
-    );
-  };
+  useEffect(()=> {
+      setNodesValue([...initialNodesValues]);
+      const nodeValueTemperory = { ...nodeTypes };
+      initialNodesValues.forEach((itemValue) => {
+        nodeValueTemperory[`cstmform-${itemValue.key}`] = memo(() => {
+          return <NodeFormValue component={itemValue} />;
+        });
+      });
+      
+      setNodeType({ ...nodeValueTemperory });
+  },[])
 
   const handleNodeAddition = (ComponentForm) => {
     setNodesValue([...nodeValue, ComponentForm]);
@@ -118,7 +197,7 @@ const App = () => {
       [`cstmform-${ComponentForm.key}`]: memo(() => {
         return (
           <>
-            <NodeFormValue component={ComponentForm} /> 
+            <NodeFormValue component={ComponentForm} />
           </>
         );
       }),
@@ -139,9 +218,7 @@ const App = () => {
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
-
       const type = event.dataTransfer.getData("application/reactflow");
-
       if (typeof type === "undefined" || !type) {
         return;
       }
@@ -150,12 +227,11 @@ const App = () => {
         y: event.clientY,
       });
       const newNode = {
-        id: getId(),
+        id: getId(uuidv4()),
         type,
         position,
         data: { label: `${type} node` },
       };
-
       setNodes((nds) => nds.concat(newNode));
     },
     [reactFlowInstance]
@@ -169,7 +245,6 @@ const App = () => {
     setOpen(newOpen);
   };
 
-
   return (
     <div className="dndflow">
       <ReactFlowProvider>
@@ -180,7 +255,6 @@ const App = () => {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
-            // fitView
             attributionPosition="top-right"
             nodeTypes={nodeTypes}
             onInit={setReactFlowInstance}
@@ -254,16 +328,15 @@ const App = () => {
           >
             Output
           </p>
-             <EditableTextarea 
-                textareavalue={textareavalue}
-                nodeTypes={nodeTypes}
-                setNodes={setNodes}
-                setNodeType={setNodeType}
-                output={output}
-                setNodesValue={setNodesValue}
-                
-              />
-           
+          <EditableTextarea
+            textareavalue={textareavalue}
+            nodeTypes={nodeTypes}
+            nodes={nodes}
+            setNodes={setNodes}
+            setNodeType={setNodeType}
+            output={output}
+            setNodesValue={setNodesValue}
+          />
         </div>
       </Drawer>
       <Drawer anchor={"right"} open={open} onClose={() => toggleDrawer(false)}>
