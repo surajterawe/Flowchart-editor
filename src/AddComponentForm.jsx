@@ -28,14 +28,7 @@ const AddComponentForm = ({fields, setFields}) => {
         value={fields.name}
         onChange={(e, newValue) => handleMetadataChange('name', newValue)}
       />
-      <TextField
-        label="Key"
-        className="textfield-custom"
-        id="key"
-        required
-        value={fields.key}
-        onChange={(e, newValue) => handleMetadataChange('key', newValue)}
-      />
+      
       <TextField
         label="Description"
         className="textfield-custom"

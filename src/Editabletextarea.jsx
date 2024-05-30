@@ -1,21 +1,25 @@
 // export default EditableTextarea;
-import React, { useState, memo, useEffect } from "react";
-import NodeFormValue from "./NodeFormValue"; // Adjust the import according to your project structure
+import React, { useState, useEffect, memo } from "react";
+import NodeFormValue from "./NodeFormValue";
+import { useDispatch } from "react-redux";
+import { setoutput } from "./Redux/outputslice";
 
 function EditableTextarea({
   textareavalue,
   output,
   nodeTypes,
+  nodeValue,
   nodes,
+  setOutput,
   setNodes,
   setNodesValue,
   setNodeType,
 }) {
   const [outputState, setOutputState] = useState("");
-
-  useEffect(()=> {
-    setOutputState(JSON.stringify(output, null, 2))
-  },[])
+  const dispatch = useDispatch()
+  useEffect(() => {
+    setOutputState(JSON.stringify(output, null, 2));
+  }, []);
 
   const isJSON = (str) => {
     try {
@@ -26,52 +30,26 @@ function EditableTextarea({
     }
   };
 
-
   const handleChange = (value) => {
     setOutputState(value);
     if (value && isJSON(value)) {
       const obj = JSON.parse(value);
-      const formDataList = [
-        ...Object.values(obj).map((items) => items?.data?.formData),
-      ];
-      setNodesValue([...formDataList]);
+      const values_json = Object.values(obj);
+      // const formData = values
       const nodeValueTemperory = { ...nodeTypes };
-      formDataList.forEach((itemValue) => {
-        nodeValueTemperory[`cstmform-${itemValue.key}`] = memo(() => {
-          return <NodeFormValue component={itemValue} />;
+      values_json.forEach((itemValue) => {
+        nodeValueTemperory[`${itemValue.type}`] = memo(() => {
+          return <NodeFormValue id={itemValue.type} unique_id={itemValue.id} output={obj} setOutput={setOutput} component={{...itemValue.data.formData, form : itemValue.data.formData.formid }} formfields={itemValue.data.formData.form}  />;
         });
       });
-      
-      setNodeType({ ...nodeValueTemperory });
-      // const currentNodes = [...nodes]
-    
-      setNodes([
-        ...Object.values(obj).map((items) => {
-          return {
-            ...items,
-            data: {
-              label: items?.data?.label,
-            },
-          };
-        }),
-      ]);
+      dispatch(setoutput(obj))
+      setNodeType({...nodeValueTemperory});
     }
   };
+  
 
   return (
     <>
-      {/* <textarea
-        style={{
-          margin: "20px",
-          padding: "20px",
-          border: "1px solid #00000020",
-          outline: "none",
-          width: "86%",
-          height: "200px",
-        }}
-        value={textareaContent}
-        onChange={handleInputChange}
-      /> */}
       <textarea
         style={{
           margin: "20px",

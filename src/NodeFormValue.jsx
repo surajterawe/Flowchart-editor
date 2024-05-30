@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Checkbox,
   ChoiceGroup,
@@ -7,6 +7,8 @@ import {
 } from "office-ui-fabric-react";
 import { Dropdown } from "@fluentui/react/lib/Dropdown";
 import { Handle, Position } from "reactflow";
+import { useDispatch, useSelector } from "react-redux";
+import { setoutput } from "./Redux/outputslice";
 
 const handleStyle = {
   top: "10%",
@@ -33,7 +35,39 @@ const onRenderOption = (option) => {
   );
 };
 
-const NodeFormValue = ({ component }) => {
+const NodeFormValue = ({ component, formfields, unique_id, id }) => {
+  const [fields, setFields] = useState(formfields);
+  const output = useSelector((state) => state.output.value);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    setFields([...output[unique_id]?.data?.formData?.form]);
+  }, [output]);
+
+  const handleChange = (key, value, isAppend = false) => {
+    const index = fields.findIndex((item) => item.key === key);
+    let fieldData = {
+      ...fields[index],
+      value: isAppend ? [...fields[index].value, value] : value,
+    };
+    const currentForm = [...fields];
+    currentForm[index] = { ...fieldData };
+    const currentOutput = { ...output };
+    currentOutput[unique_id] = {
+      ...currentOutput[unique_id],
+      data: {
+        ...currentOutput[unique_id].data,
+        formData: {
+          ...currentOutput[unique_id].data.formData,
+          form: [...currentForm],
+        },
+      },
+    };
+    dispatch(setoutput({ ...currentOutput }));
+    // console.log(currentOutput, id,unique_id)
+    setFields([...currentForm]);
+  };
+
   return (
     <>
       <div
@@ -67,11 +101,16 @@ const NodeFormValue = ({ component }) => {
         >
           <form>
             <div className="inputWrapper">
-              {component?.form?.map((items) => {
+              {fields?.map((items, index) => {
                 switch (items.type) {
                   case "radio":
                     return (
                       <ChoiceGroup
+                        onChange={(ev, option) => {
+                          handleChange(items.key, option.key);
+                        }}
+                        selectedKey={fields[index].value}
+                        id={items.key}
                         options={items.options.map((option) => {
                           return {
                             key: option.key,
@@ -79,7 +118,10 @@ const NodeFormValue = ({ component }) => {
                               <>
                                 {option?.description ? (
                                   <p style={{ margin: 0 }}>
-                                    <span style={{fontWeight : 600}}> {option.name} </span> : {option?.description}
+                                    <span style={{ fontWeight: 600 }}>
+                                      {option.name}
+                                    </span>
+                                    : {option?.description}
                                   </p>
                                 ) : (
                                   <p style={{ margin: 0 }}>
@@ -102,6 +144,10 @@ const NodeFormValue = ({ component }) => {
                     return (
                       <TextField
                         label={items.name}
+                        value={fields[index].value}
+                        onChange={(ev, value) => {
+                          handleChange(items.key, value);
+                        }}
                         className="textfield-custom"
                         id={items.key}
                         required
@@ -111,8 +157,12 @@ const NodeFormValue = ({ component }) => {
                     return (
                       <Dropdown
                         label={items.name}
+                        selectedKey={fields[index].value}
                         style={{
                           position: "relative",
+                        }}
+                        onChange={(ev, option) => {
+                          handleChange(items.key, option.key);
                         }}
                         onRenderOption={onRenderOption}
                         id={items.key}
@@ -129,9 +179,24 @@ const NodeFormValue = ({ component }) => {
                     return (
                       <>
                         <Label required>{items.name}</Label>
-                        {items.options.map((items) => {
+                        {items.options.map((item) => {
                           return (
-                            <Checkbox label={items.name} value={items.key} />
+                            <Checkbox
+                              checked={fields[index]?.value?.includes(item.key)}
+                              onChange={(e, isChecked) => {
+                                let currentValue = fields[index]?.value ? [...fields[index]?.value] : []
+                                if(isChecked){
+                                  currentValue = [...currentValue, item.key]
+                                }
+                                else {
+                                  const index = currentValue.findIndex(value => value === item.key)
+                                  currentValue.splice(index,1)
+                                }
+                                handleChange(items.key, currentValue);
+                              }}
+                              label={item.name}
+                              value={item.key}
+                            />
                           );
                         })}
                       </>
@@ -144,7 +209,6 @@ const NodeFormValue = ({ component }) => {
           </form>
         </div>
       </div>
-      {/* <Handle type="source" style={handleStyle} isConnectable={true} position={Position.Left} /> */}
       <Handle
         type="target"
         style={handleStyle}

@@ -15,17 +15,18 @@ import {
   nodes as initialNodes,
   edges as initialEdges,
 } from "./initial-elements";
-import TextNode from "./TextNode";
 import ButtonEdge from "./ButtonEdge";
 import "reactflow/dist/style.css";
 import "./overview.css";
-import NetworkingStorageAccount from "./NetworkingStorageAccount";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { Drawer } from "@mui/material";
 import AddComponentForm from "./AddComponentForm";
 import { DefaultButton } from "@fluentui/react";
 import NodeFormValue from "./NodeFormValue";
 import EditableTextarea from "./Editabletextarea";
+import { formFields } from "./config";
+import { useDispatch, useSelector } from "react-redux";
+import { setoutput } from "./Redux/outputslice";
 
 export const isJSON = (str) => {
   try {
@@ -52,156 +53,59 @@ const nodeClassName = (node) => node.type;
 const initialNodesValues = [
   {
     name: "Storage Account",
-    key: "storageaccountnode",
-    form: [{
-      key: "storageAccountName",
-      name: "Storage Account Name",
-      type: "text",
-      options: [
-        {
-          description: "",
-          key: "",
-          name: "",
-        },
-      ],
-    }, {
-      key: "region",
-      name: "Region",
-      type: "dropdown",
-      options: [
-        {
-          description: "",
-          key: "lrs",
-          name: "Locally-redundent storage (LRS)",
-        },
-        {
-          description: "",
-          key: "zrs",
-          name: "Zone-redundent storage (ZRS)",
-        },
-      ],
-    },{
-      key: "performance",
-      name: "Performance",
-      type: "radio",
-      options: [
-        {
-          description: "Recommended for most scenarios (general-purpose v2 account)",
-          key: "standard",
-          name: "Standard",
-        },
-        {
-          description: "Recommended for scenarios that require low latency.",
-          key: "premium",
-          name: "Premium",
-        },
-      ],
-    }, {
-      key: "premiumaccounttype",
-      name: "Premium account type",
-      type: "dropdown",
-      options: [
-        {
-          description: "",
-          key: "blackbloba",
-          name: "Black blobs",
-        },
-        {
-          description: "",
-          key: "fileshares",
-          name: "File shares",
-        },
-        {
-          description: "",
-          key: "pageblobs",
-          name: "Page blobs",
-        },
-      ],
-    },  {
-      key: "redundency",
-      name: "Redundancy",
-      type: "dropdown",
-      options: [
-        {
-          description: "",
-          key: "lrs",
-          name: "Locally-redundent storage (LRS)",
-        },
-        {
-          description: "",
-          key: "zrs",
-          name: "Zone-redundent storage (ZRS)",
-        },
-      ],
-    }],
+    key: "a93911b9-08dc-44b4-9664-648f12b0d84c",
+    form: "9da04d87-adb8-4334-afc3-1b866cdb2a9b",
   },
 ];
 
-const getId = (id) => `dndnode_${id}`;
+const getId = (id) => `${id}`;
 
 const App = () => {
   const reactFlowWrapper = useRef(null);
-  const [nodeTypes, setNodeType] = useState({
-    // "cstmform-storageaccountnode": TextNode,
-    networkingsStorageAccount: NetworkingStorageAccount,
-  });
+  const output  = useSelector((state) => state.output.value)
+  const dispatch = useDispatch()
+  const [nodeTypes, setNodeType] = useState({});
   const [textareavalue, setTextAreaValue] = useState("");
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
-  const [output, setOutput] = useState({});
+  // const [output, setOutput] = useState({});
   const [fields, setFields] = useState(defaultFields);
   const [open, setOpen] = React.useState(false);
   const [outputdrawer, setoutputdrawer] = useState(false);
   const [nodeValue, setNodesValue] = useState([]);
 
-
   useEffect(() => {
     if (nodes && nodeValue.length > 0) {
-      const outputData = {};
+      let outputData = {};
       nodes.forEach((itemsValues, index) => {
-        const formData = nodeValue.find((items) =>
-          items.key.includes("cstmform")
-            ? itemsValues.type === items.key
-            : itemsValues.type === `cstmform-${items.key}`
-        );
-
-        outputData[itemsValues.id] = {
-          ...itemsValues,
-          data: { ...itemsValues.data, formData },
-        };
+        if(Object.keys(output).includes(itemsValues.id)){
+          outputData[itemsValues.id] = {
+            ...output[itemsValues.id]
+          };
+        }
+        else {
+          outputData[itemsValues.id] = {
+            ...itemsValues
+          }
+        }
       });
-      setOutput(outputData);
+      dispatch(setoutput({...outputData}));
     }
 
     // nodes,nodeValue)
   }, [nodes]);
 
-  useEffect(()=> {
-      setNodesValue([...initialNodesValues]);
-      const nodeValueTemperory = { ...nodeTypes };
-      initialNodesValues.forEach((itemValue) => {
-        nodeValueTemperory[`cstmform-${itemValue.key}`] = memo(() => {
-          return <NodeFormValue component={itemValue} />;
-        });
-      });
-      
-      setNodeType({ ...nodeValueTemperory });
-  },[])
+  useEffect(() => {
+    setNodesValue([...initialNodesValues]);
+  }, []);
+
 
   const handleNodeAddition = (ComponentForm) => {
-    setNodesValue([...nodeValue, ComponentForm]);
+    const formid = uuidv4()
+    formFields[formid] = ComponentForm.form
+    setNodesValue([...nodeValue, {name : ComponentForm.name, form : formid, key : uuidv4()}]);
     setFields({ ...defaultFields });
-    setNodeType({
-      ...nodeTypes,
-      [`cstmform-${ComponentForm.key}`]: memo(() => {
-        return (
-          <>
-            <NodeFormValue component={ComponentForm} />
-          </>
-        );
-      }),
-    });
     setOpen(false);
   };
 
@@ -215,6 +119,8 @@ const App = () => {
     event.dataTransfer.dropEffect = "move";
   }, []);
 
+
+
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
@@ -222,24 +128,45 @@ const App = () => {
       if (typeof type === "undefined" || !type) {
         return;
       }
+      const formData = nodeValue
+      const id = uuidv4()
+      const unique_id = uuidv4()
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
+      const formDataValue = nodeValue.find((items) =>
+        items.key.includes("cstmform")
+          ? type === items.key
+          : type === `cstmform-${items.key}`
+      );
       const newNode = {
-        id: getId(uuidv4()),
-        type,
+        id: getId(unique_id),
+        type : `cstmform-${id}`,
         position,
-        data: { label: `${type} node` },
+        data: { label: `${type} node`,  formData: {...formDataValue,formid : formDataValue.form , form : formFields[formDataValue.form]} },
       };
+      if (formData) { 
+        const nodeValueTemperory = { ...nodeTypes };
+        formData.forEach((itemValue) => {
+          nodeValueTemperory[`cstmform-${id}`] = memo(() => {
+            return <NodeFormValue id={id}  unique_id={unique_id} newNode={newNode} component={itemValue} formfields={formFields[itemValue.form]} />;
+          });
+        })
+        setNodeType(nodeValueTemperory);
+      }
+   
       setNodes((nds) => nds.concat(newNode));
     },
-    [reactFlowInstance]
+
+    [reactFlowInstance, nodeValue, output, nodeTypes]
   );
 
   const toggleOutputDrawer = (value) => {
     setoutputdrawer(value);
   };
+
+
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -332,6 +259,7 @@ const App = () => {
             textareavalue={textareavalue}
             nodeTypes={nodeTypes}
             nodes={nodes}
+            nodeValue={nodeValue}
             setNodes={setNodes}
             setNodeType={setNodeType}
             output={output}
@@ -360,7 +288,7 @@ const App = () => {
             Add Component
             <DefaultButton
               onClick={() => {
-                if (fields?.key && fields.name) {
+                if (fields.name) {
                   handleNodeAddition(fields);
                 }
               }}
